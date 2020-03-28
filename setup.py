@@ -11,7 +11,7 @@ setuptools.setup(
     name="sentry-syslog",
     author="Ross Patterson",
     author_email="me@rpatterson.net",
-    description="Python project structure foundation or template",
+    description="Send syslog messages to Sentry as events",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/x-rst",
     url="https://github.com/rpatterson/sentry-syslog",
