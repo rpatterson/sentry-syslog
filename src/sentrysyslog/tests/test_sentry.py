@@ -80,15 +80,6 @@ class SentrySyslogSentryTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "extra", processed_event, "Captured event missing log record arguments",
-        )
-        self.assertIn(
-            "procid",
-            processed_event["extra"],
-            "Captured event missing syslog message extra fields",
-        )
-
-        self.assertIn(
             "breadcrumbs", processed_event, "Captured event missing breadcrumbs"
         )
         self.assertEqual(

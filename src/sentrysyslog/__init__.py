@@ -93,7 +93,10 @@ parser.add_argument(
 )
 
 
-def run(input_file=parser.get_default("input_file")):
+def run(
+    input_file=parser.get_default("input_file"),
+    event_level=parser.get_default("event_level"),
+):
     """
     The inner loop for sending syslog lines as events and breadcrumbs to Sentry.
 
@@ -103,14 +106,29 @@ def run(input_file=parser.get_default("input_file")):
     for syslog_line in input_file:
         syslog_msg = syslog_rfc5424_parser.SyslogMessage.parse(syslog_line[:-1])
         syslog_msg_dict = syslog_msg.as_dict()
+
+        level = getattr(SyslogSeverityToPythonLevel, syslog_msg.severity.name).value
+        args = ()
+        kwargs = {}
+        syslog_fields = {
+            key: value
+            for key, value in syslog_msg_dict.items()
+            if value is not None
+            and value != {}
+            and value != []
+            and key not in {"facility", "appname", "severity", "msg", "version"}
+        }
+        if level >= event_level:
+            # For Sentry events, the event["logentry"]["params"] key seems to be the
+            # best user experience in the UI
+            args = (syslog_fields,)
+        else:
+            # For Sentry breadcrumbs, log record args are ignored and only extra is
+            # included
+            kwargs = dict(extra=syslog_fields)
+
         logging.getLogger("{facility}.{appname}".format(**syslog_msg_dict)).log(
-            level=getattr(SyslogSeverityToPythonLevel, syslog_msg.severity.name).value,
-            msg=syslog_msg.msg,
-            extra={
-                key: value
-                for key, value in syslog_msg_dict.items()
-                if key not in {"facility", "appname", "severity", "msg"}
-            },
+            level, syslog_msg.msg, *args, **kwargs
         )
 
 
@@ -119,8 +137,12 @@ def process_syslog_fields(event, hint):
     Move syslog fields not handled by the logging integration as appropriate.
     """
     event["platform"] = "syslog"
-    event["server_name"] = event["extra"].pop("hostname", event["server_name"])
-    event["timestamp"] = event["extra"].pop("timestamp", event["timestamp"])
+    event["server_name"] = event["logentry"]["params"].pop(
+        "hostname", event["server_name"]
+    )
+    event["timestamp"] = event["logentry"]["params"].pop(
+        "timestamp", event["timestamp"]
+    )
 
     for breadcrumb in event.get("breadcrumbs", []):
         breadcrumb["timestamp"] = breadcrumb["data"].pop(
@@ -147,9 +169,7 @@ def main(args=None):
     )
 
     kwargs = {
-        arg: value
-        for arg, value in vars(args).items()
-        if arg not in {"sentry_dsn", "event_level"}
+        arg: value for arg, value in vars(args).items() if arg not in {"sentry_dsn"}
     }
     with args.input_file:
         return run(**kwargs)
