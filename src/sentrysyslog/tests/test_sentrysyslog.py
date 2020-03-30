@@ -3,7 +3,9 @@ sentry-syslog unit and integration tests.
 """
 
 import contextlib
+import logging
 import io
+import tempfile
 import unittest
 
 import sentrysyslog
@@ -43,7 +45,10 @@ class SentrySyslogTests(unittest.TestCase):
         """
         The command line script accepts options controlling behavior.
         """
-        result = sentrysyslog.main(args=[])
+        with tempfile.NamedTemporaryFile() as input_file:
+            result = sentrysyslog.main(
+                args=["--input-file", input_file.name, "--event-level", "CRITICAL"]
+            )
         self.assertIsNone(
             result, "Wrong console script options return value",
         )
@@ -52,9 +57,38 @@ class SentrySyslogTests(unittest.TestCase):
         """
         The command line script displays useful messages for invalid option values.
         """
-        stderr = self.getCliErrorMessages(args=["--non-existent-option"])
+        stderr = self.getCliErrorMessages(args=["--input-file=__non_existent_file__"])
         self.assertIn(
-            "error: unrecognized arguments: --non-existent-option",
+            "No such file or directory: '__non_existent_file__'",
             stderr,
-            "Wrong invalid option message",
+            "Wrong invalid --input-file option message",
+        )
+
+        stderr = self.getCliErrorMessages(args=["--event-level=getLogger"])
+        self.assertIn(
+            "doesn't correspond to a logging level",
+            stderr,
+            "Wrong invalid --event-level option message",
+        )
+
+        stderr = self.getCliErrorMessages(
+            args=["--event-level=__non_existent_logging_module_attribute__"]
+        )
+        self.assertIn(
+            "Could not look up logging level",
+            stderr,
+            "Wrong invalid --event-level option message",
+        )
+
+        logging.__non_level_int_attribute__ = 999
+        try:
+            stderr = self.getCliErrorMessages(
+                args=["--event-level=__non_level_int_attribute__"]
+            )
+        finally:
+            del logging.__non_level_int_attribute__
+        self.assertIn(
+            "doesn't match the given level name",
+            stderr,
+            "Wrong non-level integer attribute --event-level option message",
         )
