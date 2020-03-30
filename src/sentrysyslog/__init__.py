@@ -104,14 +104,30 @@ def run(input_file=parser.get_default("input_file")):
         syslog_msg = syslog_rfc5424_parser.SyslogMessage.parse(syslog_line[:-1])
         syslog_msg_dict = syslog_msg.as_dict()
         logging.getLogger("{facility}.{appname}".format(**syslog_msg_dict)).log(
-            getattr(SyslogSeverityToPythonLevel, syslog_msg.severity.name).value,
-            syslog_msg.msg,
-            {
+            level=getattr(SyslogSeverityToPythonLevel, syslog_msg.severity.name).value,
+            msg=syslog_msg.msg,
+            extra={
                 key: value
                 for key, value in syslog_msg_dict.items()
                 if key not in {"facility", "appname", "severity", "msg"}
             },
         )
+
+
+def process_syslog_fields(event, hint):
+    """
+    Move syslog fields not handled by the logging integration as appropriate.
+    """
+    event["platform"] = "syslog"
+    event["server_name"] = event["extra"].pop("hostname", event["server_name"])
+    event["timestamp"] = event["extra"].pop("timestamp", event["timestamp"])
+
+    for breadcrumb in event.get("breadcrumbs", []):
+        breadcrumb["timestamp"] = breadcrumb["data"].pop(
+            "timestamp", breadcrumb["timestamp"]
+        )
+
+    return event
 
 
 def main(args=None):
@@ -127,6 +143,7 @@ def main(args=None):
         dsn=args.sentry_dsn,
         default_integrations=False,
         integrations=[atexit_integration, dedupe_integration, logging_integration],
+        before_send=process_syslog_fields,
     )
 
     kwargs = {

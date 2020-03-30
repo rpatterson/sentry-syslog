@@ -42,6 +42,14 @@ class SentrySyslogSentryTests(unittest.TestCase):
         processed_event = capture_event.call_args[0][0]
 
         self.assertEqual(
+            processed_event["platform"], "syslog", "Wrong captured event logger"
+        )
+        self.assertEqual(
+            processed_event["server_name"],
+            event_syslog_msg.hostname,
+            "Wrong captured event hostname",
+        )
+        self.assertEqual(
             processed_event["level"], "fatal", "Wrong captured event level"
         )
         self.assertEqual(
@@ -65,24 +73,19 @@ class SentrySyslogSentryTests(unittest.TestCase):
             processed_event,
             "Captured event includes Python integration modules",
         )
-        self.assertFalse(
-            processed_event["extra"], "Captured event includes Python integration argv"
+        self.assertNotIn(
+            "sys.argv",
+            processed_event["extra"],
+            "Captured event includes Python integration argv",
         )
 
         self.assertIn(
-            "params",
-            processed_event["logentry"],
-            "Captured event missing log record arguments",
+            "extra", processed_event, "Captured event missing log record arguments",
         )
         self.assertIn(
-            "hostname",
-            processed_event["logentry"]["params"],
-            "Captured event missing log record argument key",
-        )
-        self.assertEqual(
-            processed_event["logentry"]["params"]["hostname"],
-            event_syslog_msg.hostname,
-            "Wrong captured event log record argument hostname value",
+            "procid",
+            processed_event["extra"],
+            "Captured event missing syslog message extra fields",
         )
 
         self.assertIn(
@@ -110,4 +113,19 @@ class SentrySyslogSentryTests(unittest.TestCase):
             processed_breadcrumb["message"],
             breadcrumb_syslog_msg.msg,
             "Wrong captured event breadcrumb message",
+        )
+        self.assertIn(
+            "data",
+            processed_breadcrumb,
+            "Captured event breadcrumb missing log record arguments",
+        )
+        self.assertIn(
+            "hostname",
+            processed_breadcrumb["data"],
+            "Captured event breadcrumb missing log record arguments key",
+        )
+        self.assertEqual(
+            processed_breadcrumb["data"]["hostname"],
+            breadcrumb_syslog_msg.hostname,
+            "Wrong captured event breadcrumb missing log record arguments value",
         )

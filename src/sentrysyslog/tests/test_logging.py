@@ -35,6 +35,6 @@ class SentrySyslogLoggingTests(unittest.TestCase):
         )
         self.assertIn(
             "hostname",
-            logged.records[0].args,
+            dir(logged.records[0]),
             "Logging record arguments missing syslog field",
         )
