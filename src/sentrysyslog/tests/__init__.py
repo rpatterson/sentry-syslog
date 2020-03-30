@@ -2,14 +2,14 @@
 Tests for sending syslog messages to Sentry as events.
 """
 
+import pathlib
+
 from sentry_sdk import hub
 
-
-SYSLOG_INFO_LINE = (
-    "<78>1 2016-01-15T00:04:01+00:00 host1 CROND 10391 - "
-    '[meta sequenceId="29"] some_message\n'
-)
-SYSLOG_ALERT_LINE = "<409>1 2016-01-15T00:00:00Z host2 prg - - - message\n"
+with open(pathlib.Path(__file__).parent / "info.syslog.log") as info_opened:
+    SYSLOG_INFO_LINE = info_opened.read()
+with open(pathlib.Path(__file__).parent / "alert.syslog.log") as alert_opened:
+    SYSLOG_ALERT_LINE = alert_opened.read()
 
 DSN_VALUE = "https://<key>@sentry.io/1"
 
