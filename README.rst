@@ -16,7 +16,8 @@ message to Sentry as events as follows:
 #. Logs the Python message to be handled by the `Sentry's Python logging integration`_
 
 This can be used, for example, with `Rsyslog's omprog output module`_ as the `binary` to
-selectively forward a system's syslog messages to Sentry as events.
+selectively forward a system's syslog messages to Sentry as events.  See the `example
+omprog configuration`_.
 
 
 .. _RFC 5424 IETF Syslog Protocol: https://tools.ietf.org/html/rfc5424
@@ -24,3 +25,4 @@ selectively forward a system's syslog messages to Sentry as events.
 .. _Python's logging facility: https://docs.python.org/3/library/logging.html
 .. _Rsyslog's omprog output module:
    https://www.rsyslog.com/doc/v8-stable/configuration/modules/omprog.html
+.. _example omprog configuration: ./src/sentry_syslog/etc/rsyslog.d/99-sentry.conf
