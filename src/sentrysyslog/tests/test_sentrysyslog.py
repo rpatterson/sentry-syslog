@@ -1,5 +1,5 @@
 """
-sentry-syslog unit and integration tests.
+sentry-syslog tests for command-line option and argument handling.
 """
 
 import contextlib
@@ -9,11 +9,12 @@ import tempfile
 import unittest
 
 import sentrysyslog
+from .. import tests
 
 
-class SentrySyslogTests(unittest.TestCase):
+class SentrySyslogCliTests(unittest.TestCase):
     """
-    sentry-syslog unit and integration tests.
+    sentry-syslog tests for command-line option and argument handling.
     """
 
     def getCliErrorMessages(self, args):
@@ -46,8 +47,13 @@ class SentrySyslogTests(unittest.TestCase):
         The command line script accepts options controlling behavior.
         """
         with tempfile.NamedTemporaryFile() as input_file:
+            self.addCleanup(tests.cleanupBreadcrumbs)
             result = sentrysyslog.main(
-                args=["--input-file", input_file.name, "--event-level", "CRITICAL"]
+                args=[
+                    "--input-file={}".format(input_file.name),
+                    "--event-level=CRITICAL",
+                    tests.DSN_VALUE,
+                ]
             )
         self.assertIsNone(
             result, "Wrong console script options return value",

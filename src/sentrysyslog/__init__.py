@@ -3,8 +3,17 @@ Send syslog messages to Sentry as events.
 """
 
 import sys
+import enum
 import logging
 import argparse
+
+import syslog_rfc5424_parser
+
+import sentry_sdk
+from sentry_sdk.integrations import atexit
+from sentry_sdk.integrations import dedupe
+from sentry_sdk.integrations import logging as sentry_logging
+
 
 # Manage version through the VCS CI/CD process
 try:
@@ -13,6 +22,21 @@ except ImportError:  # pragma: no cover
     version = None
 if version is not None:  # pragma: no cover
     __version__ = version.version
+
+
+class SyslogSeverityToPythonLevel(enum.IntEnum):
+    """
+    Map syslog severities to Python's logging levels.
+    """
+
+    emerg = logging.CRITICAL
+    alert = logging.CRITICAL
+    crit = logging.CRITICAL
+    err = logging.ERROR
+    warning = logging.WARNING
+    notice = logging.WARNING
+    info = logging.INFO
+    debug = logging.DEBUG
 
 
 def logging_level_type(level_name):
@@ -64,22 +88,54 @@ parser.add_argument(
         "(default: %(default)s)"
     ),
 )
+parser.add_argument(
+    "sentry_dsn", help=("The DSN for your sentry DSN or client key."),
+)
 
 
-def run(
-    input_file=parser.get_default("input_file"),
-    event_level=parser.get_default("event_level"),
-):
-    pass
+def run(input_file=parser.get_default("input_file")):
+    """
+    The inner loop for sending syslog lines as events and breadcrumbs to Sentry.
 
-
-run.__doc__ = __doc__
+    Expects the Sentry Python logging integration to be initialized before being
+    called.
+    """
+    for syslog_line in input_file:
+        syslog_msg = syslog_rfc5424_parser.SyslogMessage.parse(syslog_line[:-1])
+        syslog_msg_dict = syslog_msg.as_dict()
+        logging.getLogger("{facility}.{appname}".format(**syslog_msg_dict)).log(
+            getattr(SyslogSeverityToPythonLevel, syslog_msg.severity.name).value,
+            syslog_msg.msg,
+            {
+                key: value
+                for key, value in syslog_msg_dict.items()
+                if key not in {"facility", "appname", "severity", "msg"}
+            },
+        )
 
 
 def main(args=None):
     args = parser.parse_args(args=args)
+
+    atexit_integration = atexit.AtexitIntegration()
+    dedupe_integration = dedupe.DedupeIntegration()
+    logging.getLogger().setLevel(level=logging.NOTSET)
+    logging_integration = sentry_logging.LoggingIntegration(
+        event_level=args.event_level
+    )
+    sentry_sdk.init(
+        dsn=args.sentry_dsn,
+        default_integrations=False,
+        integrations=[atexit_integration, dedupe_integration, logging_integration],
+    )
+
+    kwargs = {
+        arg: value
+        for arg, value in vars(args).items()
+        if arg not in {"sentry_dsn", "event_level"}
+    }
     with args.input_file:
-        return run(**vars(args))
+        return run(**kwargs)
 
 
 main.__doc__ = __doc__
