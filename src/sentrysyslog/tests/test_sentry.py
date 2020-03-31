@@ -2,6 +2,7 @@
 sentry-syslog tests for integrating with Sentry to send events and breadcrumbs.
 """
 
+import pathlib
 import tempfile
 import unittest
 from unittest import mock
@@ -119,4 +120,28 @@ class SentrySyslogSentryTests(unittest.TestCase):
             processed_breadcrumb["data"]["hostname"],
             breadcrumb_syslog_msg.hostname,
             "Wrong captured event breadcrumb missing log record arguments value",
+        )
+
+    @mock.patch("sentry_sdk.transport.HttpTransport.capture_event")
+    def test_invalid_syslog_messages(self, capture_event):
+        """
+        Syslog messages that can't be parsed are captured as Sentry exception events.
+        """
+        with open(pathlib.Path(__file__).parent / "invalid.syslog.log") as input_file:
+            self.addCleanup(tests.cleanupBreadcrumbs)
+            sentry_syslog.main(
+                args=["--input-file={}".format(input_file.name), tests.DSN_VALUE]
+            )
+
+        capture_event.assert_called()
+        self.assertEqual(
+            capture_event.call_count,
+            len(tests.SYSLOG_INVALID_LINES[:-1].split("\n")),
+            "Wrong number of events captured for invalid syslog lines",
+        )
+        processed_event = capture_event.call_args[0][0]
+        self.assertIn(
+            "exception",
+            processed_event,
+            "Internal exception not included in captured event",
         )

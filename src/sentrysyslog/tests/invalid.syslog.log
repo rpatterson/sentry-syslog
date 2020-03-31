@@ -1,0 +1,5 @@
+2020-03-30T12:40:06.309733-07:00 rpatterson systemd[1]: Stopping System Logging Service...
+2020-03-30T12:40:06.572615-07:00 rpatterson rsyslogd: child process (pid 1913) exited with status 1 [v8.1901.0]
+<12>1 2020-03-30T13:42:39.802473-07:00 rpatterson  5331 - -  (EE) event5  - SynPS/2 Synaptics TouchPad: kernel bug: Touch jump detected and discarded.
+<12>1 2020-03-30T13:53:13.915491-07:00 rpatterson  5331 - -  (**) Option "fd" "66"
+<14>1 2020-03-30T16:26:44.737947-07:00 rpatterson chrome-ohmmkhmmmpcnpikjeljgnaoabkaalbgc-Default.desktop 5598 - -  Opening in existing browser session.
