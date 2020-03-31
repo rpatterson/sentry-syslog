@@ -20,7 +20,7 @@ class SentrySyslogLoggingTests(unittest.TestCase):
         The run loop logs each syslog line as a Python logging record.
         """
         stdin_file = io.StringIO()
-        stdin_file.write(tests.SYSLOG_INFO_LINE)
+        stdin_file.write(tests.SYSLOG_INFO_LINES)
         stdin_file.seek(0)
 
         with self.assertLogs("cron.CROND", level=logging.INFO) as logged:

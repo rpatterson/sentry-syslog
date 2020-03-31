@@ -23,15 +23,15 @@ class SentrySyslogSentryTests(unittest.TestCase):
         The main function initializes the integration and sends events and breadcrumbs.
         """
         breadcrumb_syslog_msg = syslog_rfc5424_parser.SyslogMessage.parse(
-            tests.SYSLOG_INFO_LINE[:-1]
+            tests.SYSLOG_INFO_LINES.split("\n", 1)[0]
         )
         event_syslog_msg = syslog_rfc5424_parser.SyslogMessage.parse(
-            tests.SYSLOG_ALERT_LINE[:-1]
+            tests.SYSLOG_ALERT_LINES.split("\n", 1)[0]
         )
 
         with tempfile.NamedTemporaryFile("w+") as input_file:
-            input_file.write(tests.SYSLOG_INFO_LINE)
-            input_file.write(tests.SYSLOG_ALERT_LINE)
+            input_file.write(tests.SYSLOG_INFO_LINES)
+            input_file.write(tests.SYSLOG_ALERT_LINES)
             input_file.seek(0)
             self.addCleanup(tests.cleanupBreadcrumbs)
             sentrysyslog.main(
