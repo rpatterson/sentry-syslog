@@ -153,11 +153,16 @@ def process_syslog_fields(event, hint):
 
 
 def main(args=None):
+    # Disable default stderr logging handler and handle all messages assuming filtering
+    # of the minimum level for breadcrumbs was done in the rsyslog configuration.
+    logging.basicConfig(handlers=[])
+    logging.getLogger().setLevel(level=logging.NOTSET)
+    logging.lastResort = logging.NullHandler()
+
     args = parser.parse_args(args=args)
 
     atexit_integration = atexit.AtexitIntegration()
     dedupe_integration = dedupe.DedupeIntegration()
-    logging.getLogger().setLevel(level=logging.NOTSET)
     logging_integration = sentry_logging.LoggingIntegration(
         event_level=args.event_level
     )
