@@ -46,7 +46,7 @@ See the command-line help for details on options and arguments::
     --event-level EVENT_LEVEL, -e EVENT_LEVEL
                           Capture log messages of this level and above as Sentry
                           events. All other events are captured as Sentry
-                          breadcrumbs. (default: 40)
+                          breadcrumbs. (default: ERROR)
 
 The script expects all the syslog lines it receives to be already filtered down to those
 that should be captured in Sentry.  The level setting only determines which lines are

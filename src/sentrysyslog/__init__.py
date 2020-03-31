@@ -86,11 +86,9 @@ parser.add_argument(
     type=logging_level_type,
     default=logging.ERROR,
     help=(
-        (
-            "Capture log messages of this level and above as Sentry events.  "
-            "All other events are captured as Sentry breadcrumbs. "
-            "(default: {})".format("ERROR")
-        )
+        "Capture log messages of this level and above as Sentry events.  "
+        "All other events are captured as Sentry breadcrumbs. "
+        "(default: ERROR)"
     ),
 )
 parser.add_argument(
