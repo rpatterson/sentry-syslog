@@ -92,7 +92,7 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
-    "sentry_dsn", help=("The DSN for your sentry DSN or client key."),
+    "sentry_dsn", help=("The DSN or client key for your Sentry project."),
 )
 
 
