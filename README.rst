@@ -1,10 +1,10 @@
 ==============================================================================
-python-project-structure
+sentry-syslog
 ==============================================================================
 Python project structure foundation or template
 ------------------------------------------------------------------------------
 
-.. image:: https://github.com/rpatterson/python-project-structure/workflows/Run%20linter,%20tests%20and,%20and%20release/badge.svg
+.. image:: https://github.com/rpatterson/sentry-syslog/workflows/Run%20linter,%20tests%20and,%20and%20release/badge.svg
 
 This repository is meant to be used as a minimal, yet opinionated baseline for `Python`_
 software projects.  It includes:
@@ -26,7 +26,7 @@ Installation
 
 Install using any tool for installing standard Python 3 distributions such as `pip`_::
 
-  $ sudo pip3 install python-project-structure
+  $ sudo pip3 install sentry-syslog
 
 
 Motivation

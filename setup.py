@@ -8,13 +8,13 @@ with open("README.rst", "r") as readme:
     LONG_DESCRIPTION = readme.read()
 
 setuptools.setup(
-    name="python-project-structure",
+    name="sentry-syslog",
     author="Ross Patterson",
     author_email="me@rpatterson.net",
     description="Python project structure foundation or template",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/x-rst",
-    url="https://github.com/rpatterson/python-project-structure",
+    url="https://github.com/rpatterson/sentry-syslog",
     packages=setuptools.find_packages("src"),
     package_dir={"": "src"},
     classifiers=[
@@ -24,8 +24,7 @@ setuptools.setup(
     ],
     python_requires=">=3.6",
     use_scm_version=dict(
-        write_to="src/pythonprojectstructure/version.py",
-        local_scheme="no-local-version",
+        write_to="src/sentrysyslog/version.py", local_scheme="no-local-version",
     ),
     setup_requires=["setuptools_scm"],
     extras_require=dict(
@@ -39,9 +38,5 @@ setuptools.setup(
             "flake8-black",
         ]
     ),
-    entry_points=dict(
-        console_scripts=[
-            "python-project-structure=pythonprojectstructure:main",
-        ]
-    ),
+    entry_points=dict(console_scripts=["sentry-syslog=sentrysyslog:main",]),
 )
