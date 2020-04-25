@@ -1,5 +1,5 @@
 """
-Python project structure foundation or template, distribution/package metadata.
+Send syslog messages to Sentry as events, distribution/package metadata.
 """
 
 import setuptools
