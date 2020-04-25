@@ -39,5 +39,5 @@ setuptools.setup(
             "flake8-black",
         ]
     ),
-    entry_points=dict(console_scripts=["sentry-syslog=sentrysyslog:main",]),
+    entry_points=dict(console_scripts=["sentry-syslog=sentrysyslog:main"]),
 )
