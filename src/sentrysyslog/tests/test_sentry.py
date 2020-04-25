@@ -129,7 +129,7 @@ class SentrySyslogSentryTests(unittest.TestCase):
         """
         with open(pathlib.Path(__file__).parent / "invalid.syslog.log") as input_file:
             self.addCleanup(tests.cleanupBreadcrumbs)
-            sentry_syslog.main(
+            sentrysyslog.main(
                 args=["--input-file={}".format(input_file.name), tests.DSN_VALUE]
             )
 
