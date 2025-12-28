@@ -1,0 +1,6 @@
+# Python byte-compiled files:
+*.py[co]
+__pycache__
+
+# Build artifacts:
+/sentry_syslog.egg-info

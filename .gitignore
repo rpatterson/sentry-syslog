@@ -1,3 +1,6 @@
+# Common backup files suffix:
+*~
+
 # Project-specific variable data
 /var
 
